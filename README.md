@@ -21,6 +21,7 @@ toolkit available.
 - Python 3.9+
 - NVIDIA GPU with CUDA + drivers that satisfy NeMo requirements
 - Build tooling: `build-essential`, `python3-dev`, `cmake`, `ninja-build`, `ffmpeg`, `sox`, `libsndfile1`, `python3-wheel`
+- Jetson-only: access to NVIDIA's Jetson wheel index (`https://pypi.jetson-ai-lab.io/jp6/cu126`)
 - [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt`)
 
 ## Installation
@@ -32,22 +33,24 @@ pick it up automatically) and install the dependencies:
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-# Jetson Thor / Jetson Nano: satisfy the Triton dependency with the local stub
+
+# Jetson Thor / Jetson Spark:
+pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 torch torchvision
+pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 cuda-python==12.6
 pip install ./vendor/triton_stub
-# Work around the missing Jetson wheel for youtokentome
-pip install --no-build-isolation youtokentome==1.0.6
+
+# All platforms:
 pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 ```
 
-> The `vendor/triton_stub` install is only required on Jetson-class devices where
-> the official Triton compiler wheel is unavailable. Skip that step on x86_64
-> hosts so you can use the real Triton implementation provided by PyTorch.
-> Jetson images also need standard build tooling preinstalled:
+> The Jetson-only lines install NVIDIA's prebuilt CUDA/Torch wheels before NeMo
+> so that pip never tries to compile large dependencies from source. Skip them
+> on x86_64 (which already has official wheels). The `vendor/triton_stub`
+> package is only needed on Jetson because NVIDIA does not publish a Triton
+> wheel for ARM64. For background and screenshots see
+> [this Hugging Face discussion](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2/discussions/66).
+> Jetson images also need the standard build tooling preinstalled:
 > `sudo apt-get install build-essential python3-dev cmake ninja-build ffmpeg sox libsndfile1 python3-wheel`.
-> Because the Jetson wheel for `youtokentome` is also missing, install it with
-> `pip install --no-build-isolation youtokentome==1.0.6` **before** the main
-> requirements to reuse the Cython toolchain from your environment (the
-> Dockerfile already performs these steps for you).
 
 ## Running the service
 
@@ -92,22 +95,22 @@ docker build -t runparakeet:latest .
 # Jetson Thor / L4T base
 docker build \
   --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
+  --build-arg TORCH_EXTRA_INDEX_URL=https://pypi.jetson-ai-lab.io/jp6/cu126 \
+  --build-arg CUDA_PYTHON_VERSION=12.6 \
   --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
 
 > **Heads up:** the L4T image tags change frequently. You can list the available
 > tags with the [NGC CLI](https://ngc.nvidia.com/setup/installers/cli) using
-> `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. Use one of the listed
-> tags (e.g., `r35.3.1-py3`). The `r35.4.1-py3` tag referenced earlier is no
-> longer published, which causes the “not found” error shown above. Don't forget
-> to authenticate to `nvcr.io` before building: `docker login nvcr.io`. Jetson
-> builds also pass `INSTALL_TRITON_STUB=1`, which installs the local stub
-> `triton` package before resolving `nemo_toolkit` so pip doesn't fail on the
-> missing Triton wheel. When installing requirements on Jetson, pip also needs
-> access to NVIDIA's index (`https://pypi.ngc.nvidia.com`) so it can download
-> the rest of the dependencies; the Dockerfile (and the command above) already
-> pass the `--extra-index-url` flag for you.
+> `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. If your device only
+> supports a single tag (e.g., `r35.2.1-pth2.0-py3`), stick with it even if your
+> Jetson firmware advertises CUDA 13—the container only needs to match the L4T
+> base flashed on the board. Don't forget to authenticate to `nvcr.io` before
+> building: `docker login nvcr.io`. Jetson builds should also point pip at the
+> Jetson wheel index (via `TORCH_EXTRA_INDEX_URL`) and install the Triton stub.
+> The Dockerfile handles the rest of the NeMo dependencies with the NVIDIA PyPI
+> mirror (`https://pypi.ngc.nvidia.com`).
 
 Run the container with the NVIDIA Container Runtime so the Parakeet model can
 access the GPU:
