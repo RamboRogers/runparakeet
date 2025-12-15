@@ -2,8 +2,8 @@
 ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.03-py3
 FROM ${BASE_IMAGE}
 ARG INSTALL_TRITON_STUB=0
-ARG TORCH_EXTRA_INDEX_URL=
-ARG CUDA_PYTHON_VERSION=12.6
+ARG TORCH_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu130
+ARG CUDA_PYTHON_VERSION=
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_NO_CACHE_DIR=1 \
@@ -42,7 +42,9 @@ RUN set -eux; \
         TORCH_INDEX_FLAGS=""; \
     fi; \
     "${PIP_BIN}" install --no-cache-dir ${TORCH_INDEX_FLAGS} torch torchvision; \
-    "${PIP_BIN}" install --no-cache-dir ${TORCH_INDEX_FLAGS} "cuda-python==${CUDA_PYTHON_VERSION}"; \
+    if [ -n "${CUDA_PYTHON_VERSION}" ]; then \
+        "${PIP_BIN}" install --no-cache-dir ${TORCH_INDEX_FLAGS} "cuda-python==${CUDA_PYTHON_VERSION}"; \
+    fi; \
     if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
         "${PIP_BIN}" install ./vendor/triton_stub; \
     fi; \

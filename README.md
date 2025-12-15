@@ -21,7 +21,7 @@ toolkit available.
 - Python 3.9+
 - NVIDIA GPU with CUDA + drivers that satisfy NeMo requirements
 - Build tooling: `build-essential`, `python3-dev`, `cmake`, `ninja-build`, `ffmpeg`, `sox`, `libsndfile1`, `python3-wheel`
-- Jetson-only: access to NVIDIA's Jetson wheel index (`https://pypi.jetson-ai-lab.io/jp6/cu126`)
+- Jetson-only: access to CUDA-enabled PyTorch wheels (we recommend the official PyTorch repo: `https://download.pytorch.org/whl/cu130`)
 - [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt`)
 
 ## Installation
@@ -35,8 +35,9 @@ source .venv/bin/activate
 pip install --upgrade pip
 
 # Jetson Thor / Jetson Spark:
-pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 torch torchvision
-pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 cuda-python==12.6
+pip install --index-url https://download.pytorch.org/whl/cu130 torch torchvision
+# (optional) You can swap in NVIDIA's Jetson index if you prefer:
+# pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 torch torchvision
 pip install ./vendor/triton_stub
 
 # All platforms:
@@ -95,8 +96,7 @@ docker build -t runparakeet:latest .
 # Jetson Thor / L4T base
 docker build \
   --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
-  --build-arg TORCH_EXTRA_INDEX_URL=https://pypi.jetson-ai-lab.io/jp6/cu126 \
-  --build-arg CUDA_PYTHON_VERSION=12.6 \
+  --build-arg TORCH_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu130 \
   --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
@@ -109,7 +109,9 @@ docker build \
 > base flashed on the board. Don't forget to authenticate to `nvcr.io` before
 > building: `docker login nvcr.io`. Jetson builds should also point pip at the
 > Jetson wheel index (via `TORCH_EXTRA_INDEX_URL`) and install the Triton stub.
-> The Dockerfile handles the rest of the NeMo dependencies with the NVIDIA PyPI
+> If you still want to pin a specific `cuda-python` version, pass
+> `--build-arg CUDA_PYTHON_VERSION=<version>`; otherwise it is skipped. The
+> Dockerfile handles the rest of the NeMo dependencies with the NVIDIA PyPI
 > mirror (`https://pypi.ngc.nvidia.com`).
 
 Run the container with the NVIDIA Container Runtime so the Parakeet model can
