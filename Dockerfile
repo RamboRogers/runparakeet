@@ -22,11 +22,13 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
+        cython3 \
         ffmpeg \
         libsndfile1 \
         ninja-build \
         python3-dev \
         python3-venv \
+        python3-wheel \
         sox \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv ${VENV_PATH} \
