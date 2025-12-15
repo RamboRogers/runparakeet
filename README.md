@@ -98,26 +98,23 @@ is installed on the host.
 # x86_64 build (CUDA capable dGPU)
 docker build -t runparakeet:latest .
 
-# Jetson Thor / L4T base
+# Jetson Thor base (matches NVIDIA's recommended image)
 docker build \
-  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
+  --build-arg BASE_IMAGE=nvcr.io/nvidia/cuda:13.0.0-devel-ubuntu24.04 \
   --build-arg TORCH_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu130 \
   --build-arg CUDA_PYTHON_VERSION= \
   --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
 
-> **Heads up:** the L4T image tags change frequently. You can list the available
-> tags with the [NGC CLI](https://ngc.nvidia.com/setup/installers/cli) using
-> `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. If your device only
-> supports a single tag (e.g., `r35.2.1-pth2.0-py3`), stick with it even if your
-> Jetson firmware advertises CUDA 13—the container only needs to match the L4T
-> base flashed on the board. Don't forget to authenticate to `nvcr.io` before
-> building: `docker login nvcr.io`. Jetson builds should also point pip at the
-> Jetson wheel index (via `TORCH_EXTRA_INDEX_URL`) and install the Triton stub.
-> `CUDA_PYTHON_VERSION` is optional—leave it empty (as in the command above) to
-> skip installing `cuda-python`, or set it if you have a known-good version to
-> match. The
+> **Heads up:** if NVIDIA publishes a new Thor/Tegra container tag, you can
+> override `BASE_IMAGE` accordingly. The command above defaults to the official
+> recommendation (`nvcr.io/nvidia/cuda:13.0.0-devel-ubuntu24.04`). Don't forget
+> to authenticate to `nvcr.io` before building: `docker login nvcr.io`. Jetson
+> builds should also point pip at the CUDA 13 wheel index (via
+> `TORCH_EXTRA_INDEX_URL`) and install the Triton stub. `CUDA_PYTHON_VERSION` is
+> optional—leave it empty (as in the command above) to skip installing
+> `cuda-python`, or set it if you have a known-good version to match. The
 > Dockerfile handles the rest of the NeMo dependencies with the NVIDIA PyPI
 > mirror (`https://pypi.ngc.nvidia.com`).
 
