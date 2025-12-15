@@ -76,9 +76,16 @@ docker build -t runparakeet:latest .
 
 # Jetson Thor / L4T base
 docker build \
-  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.4.1-py3 \
+  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.3.1-py3 \
   -t runparakeet:thor .
 ```
+
+> **Heads up:** the L4T image tags change frequently. You can list the available
+> tags with the [NGC CLI](https://ngc.nvidia.com/setup/installers/cli) using
+> `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. Use one of the listed
+> tags (e.g., `r35.3.1-py3`). The `r35.4.1-py3` tag referenced earlier is no
+> longer published, which causes the “not found” error shown above. Don't forget
+> to authenticate to `nvcr.io` before building: `docker login nvcr.io`.
 
 Run the container with the NVIDIA Container Runtime so the Parakeet model can
 access the GPU:
