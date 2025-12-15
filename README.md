@@ -34,6 +34,8 @@ source .venv/bin/activate
 pip install --upgrade pip
 # Jetson Thor / Jetson Nano: satisfy the Triton dependency with the local stub
 pip install ./vendor/triton_stub
+# Work around the missing Jetson wheel for youtokentome
+pip install --no-build-isolation youtokentome==1.0.6
 pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 ```
 
@@ -42,6 +44,10 @@ pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 > hosts so you can use the real Triton implementation provided by PyTorch.
 > Jetson images also need standard build tooling preinstalled:
 > `sudo apt-get install build-essential python3-dev cmake ninja-build ffmpeg sox libsndfile1 python3-wheel`.
+> Because the Jetson wheel for `youtokentome` is also missing, install it with
+> `pip install --no-build-isolation youtokentome==1.0.6` **before** the main
+> requirements to reuse the Cython toolchain from your environment (the
+> Dockerfile already performs these steps for you).
 
 ## Running the service
 

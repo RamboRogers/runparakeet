@@ -33,6 +33,9 @@ RUN apt-get update \
     && python3 -m venv ${VENV_PATH} \
     && ${VENV_PATH}/bin/pip install --upgrade pip \
     && ${VENV_PATH}/bin/pip install --no-cache-dir "Cython<3" \
+    && ${VENV_PATH}/bin/pip install --no-cache-dir --no-build-isolation \
+        --extra-index-url https://pypi.ngc.nvidia.com \
+        youtokentome==1.0.6 \
     && if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
            ${VENV_PATH}/bin/pip install ./vendor/triton_stub; \
        fi \
