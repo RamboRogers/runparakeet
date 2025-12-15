@@ -127,6 +127,8 @@ docker run --rm -p 8000:8000 --gpus all runparakeet:latest
 
 # Jetson (runtime flag is still required)
 docker run --rm -p 8000:8000 --runtime nvidia runparakeet:thor
+
+docker run -d -p 8005:8000 --restart unless-stopped --gpus all --runtime nvidia runparakeet:thor
 ```
 
 The server listens on port `8000` inside the container and exposes the same
