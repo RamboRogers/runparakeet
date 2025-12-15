@@ -20,13 +20,18 @@ COPY requirements.txt ./
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
         ffmpeg \
-        sox \
         libsndfile1 \
+        ninja-build \
+        python3-dev \
         python3-venv \
+        sox \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv ${VENV_PATH} \
     && ${VENV_PATH}/bin/pip install --upgrade pip \
+    && ${VENV_PATH}/bin/pip install "Cython<3" \
     && if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
            ${VENV_PATH}/bin/pip install ./vendor/triton_stub; \
        fi \

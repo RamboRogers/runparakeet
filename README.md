@@ -20,6 +20,7 @@ toolkit available.
 
 - Python 3.9+
 - NVIDIA GPU with CUDA + drivers that satisfy NeMo requirements
+- Build tooling: `build-essential`, `python3-dev`, `cmake`, `ninja-build`, `ffmpeg`, `sox`, `libsndfile1`
 - [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt`)
 
 ## Installation
@@ -39,6 +40,8 @@ pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 > The `vendor/triton_stub` install is only required on Jetson-class devices where
 > the official Triton compiler wheel is unavailable. Skip that step on x86_64
 > hosts so you can use the real Triton implementation provided by PyTorch.
+> Jetson images also need standard build tooling preinstalled:
+> `sudo apt-get install build-essential python3-dev cmake ninja-build ffmpeg sox libsndfile1`.
 
 ## Running the service
 
@@ -82,7 +85,7 @@ docker build -t runparakeet:latest .
 
 # Jetson Thor / L4T base
 docker build \
-  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.3.1-py3 \
+  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
   --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
