@@ -38,6 +38,8 @@ pip install --upgrade pip
 pip install --index-url https://download.pytorch.org/whl/cu130 torch torchvision
 # (optional) You can swap in NVIDIA's Jetson index if you prefer:
 # pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 torch torchvision
+pip install "Cython<3"
+pip install --no-build-isolation youtokentome==1.0.6
 pip install ./vendor/triton_stub
 
 # All platforms:
@@ -46,7 +48,9 @@ pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 
 > The Jetson-only lines install NVIDIA's prebuilt CUDA/Torch wheels before NeMo
 > so that pip never tries to compile large dependencies from source. Skip them
-> on x86_64 (which already has official wheels). The `vendor/triton_stub`
+> on x86_64 (which already has official wheels). Installing `Cython<3` and
+> `youtokentome==1.0.6` with `--no-build-isolation` prevents the build-time
+> Cython error Jetson users often see. The `vendor/triton_stub`
 > package is only needed on Jetson because NVIDIA does not publish a Triton
 > wheel for ARM64. For background and screenshots see
 > [this Hugging Face discussion](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2/discussions/66).
@@ -84,8 +88,9 @@ Important environment variables (all optional):
 ## Docker / NVIDIA runtime
 
 You can containerize the service with the included `Dockerfile`. It defaults to
-the x86 `nvcr.io/nvidia/pytorch:24.03-py3` base image but can be overridden for
-Jetson Thor (L4T) builds. Make sure the
+the x86 `nvcr.io/nvidia/cuda:13.0.0-devel-ubuntu24.04` base image (the same
+image NVIDIA recommends via `docker run -it --rm nvcr.io/nvidia/cuda:13.0.0-devel-ubuntu24.04`),
+but can be overridden for Jetson Thor (L4T) builds. Make sure the
 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 is installed on the host.
 
@@ -97,6 +102,7 @@ docker build -t runparakeet:latest .
 docker build \
   --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
   --build-arg TORCH_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu130 \
+  --build-arg CUDA_PYTHON_VERSION= \
   --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
@@ -109,8 +115,9 @@ docker build \
 > base flashed on the board. Don't forget to authenticate to `nvcr.io` before
 > building: `docker login nvcr.io`. Jetson builds should also point pip at the
 > Jetson wheel index (via `TORCH_EXTRA_INDEX_URL`) and install the Triton stub.
-> If you still want to pin a specific `cuda-python` version, pass
-> `--build-arg CUDA_PYTHON_VERSION=<version>`; otherwise it is skipped. The
+> `CUDA_PYTHON_VERSION` is optional—leave it empty (as in the command above) to
+> skip installing `cuda-python`, or set it if you have a known-good version to
+> match. The
 > Dockerfile handles the rest of the NeMo dependencies with the NVIDIA PyPI
 > mirror (`https://pypi.ngc.nvidia.com`).
 

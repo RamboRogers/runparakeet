@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.03-py3
+ARG BASE_IMAGE=nvcr.io/nvidia/cuda:13.0.0-devel-ubuntu24.04
 FROM ${BASE_IMAGE}
 ARG INSTALL_TRITON_STUB=0
 ARG TORCH_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cu130
@@ -36,6 +36,7 @@ RUN set -eux; \
     python3 -m venv "${VENV_PATH}"; \
     PIP_BIN="${VENV_PATH}/bin/pip"; \
     "${PIP_BIN}" install --upgrade pip; \
+    "${PIP_BIN}" install --no-cache-dir "Cython<3"; \
     if [ -n "${TORCH_EXTRA_INDEX_URL}" ]; then \
         TORCH_INDEX_FLAGS="--extra-index-url ${TORCH_EXTRA_INDEX_URL}"; \
     else \
@@ -45,6 +46,9 @@ RUN set -eux; \
     if [ -n "${CUDA_PYTHON_VERSION}" ]; then \
         "${PIP_BIN}" install --no-cache-dir ${TORCH_INDEX_FLAGS} "cuda-python==${CUDA_PYTHON_VERSION}"; \
     fi; \
+    "${PIP_BIN}" install --no-cache-dir --no-build-isolation \
+        --extra-index-url https://pypi.ngc.nvidia.com \
+        youtokentome==1.0.6; \
     if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
         "${PIP_BIN}" install ./vendor/triton_stub; \
     fi; \
