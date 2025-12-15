@@ -76,7 +76,7 @@ docker build -t runparakeet:latest .
 
 # Jetson Thor / L4T base
 docker build \
-  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.3.1-py3 \
+  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-py3 \
   -t runparakeet:thor .
 ```
 
