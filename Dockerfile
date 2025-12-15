@@ -31,7 +31,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv ${VENV_PATH} \
     && ${VENV_PATH}/bin/pip install --upgrade pip \
-    && ${VENV_PATH}/bin/pip install "Cython<3" \
     && if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
            ${VENV_PATH}/bin/pip install ./vendor/triton_stub; \
        fi \
