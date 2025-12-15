@@ -31,8 +31,14 @@ pick it up automatically) and install the dependencies:
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
+# Jetson Thor / Jetson Nano: satisfy the Triton dependency with the local stub
+pip install ./vendor/triton_stub
 pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 ```
+
+> The `vendor/triton_stub` install is only required on Jetson-class devices where
+> the official Triton compiler wheel is unavailable. Skip that step on x86_64
+> hosts so you can use the real Triton implementation provided by PyTorch.
 
 ## Running the service
 
@@ -76,7 +82,8 @@ docker build -t runparakeet:latest .
 
 # Jetson Thor / L4T base
 docker build \
-  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3 \
+  --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r35.3.1-py3 \
+  --build-arg INSTALL_TRITON_STUB=1 \
   -t runparakeet:thor .
 ```
 
@@ -85,11 +92,13 @@ docker build \
 > `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. Use one of the listed
 > tags (e.g., `r35.3.1-py3`). The `r35.4.1-py3` tag referenced earlier is no
 > longer published, which causes the “not found” error shown above. Don't forget
-> to authenticate to `nvcr.io` before building: `docker login nvcr.io`. When
-> installing requirements on Jetson, pip also needs access to NVIDIA's index
-> (`https://pypi.ngc.nvidia.com`) so it can download the `triton` wheel required
-> by `nemo_toolkit`. The Dockerfile (and the command above) already pass the
-> `--extra-index-url` flag for you.
+> to authenticate to `nvcr.io` before building: `docker login nvcr.io`. Jetson
+> builds also pass `INSTALL_TRITON_STUB=1`, which installs the local stub
+> `triton` package before resolving `nemo_toolkit` so pip doesn't fail on the
+> missing Triton wheel. When installing requirements on Jetson, pip also needs
+> access to NVIDIA's index (`https://pypi.ngc.nvidia.com`) so it can download
+> the rest of the dependencies; the Dockerfile (and the command above) already
+> pass the `--extra-index-url` flag for you.
 
 Run the container with the NVIDIA Container Runtime so the Parakeet model can
 access the GPU:

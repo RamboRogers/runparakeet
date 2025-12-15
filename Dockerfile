@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.03-py3
 FROM ${BASE_IMAGE}
+ARG INSTALL_TRITON_STUB=0
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_NO_CACHE_DIR=1 \
@@ -14,6 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 
+COPY vendor ./vendor
 COPY requirements.txt ./
 
 RUN apt-get update \
@@ -25,6 +27,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv ${VENV_PATH} \
     && ${VENV_PATH}/bin/pip install --upgrade pip \
+    && if [ "${INSTALL_TRITON_STUB}" = "1" ]; then \
+           ${VENV_PATH}/bin/pip install ./vendor/triton_stub; \
+       fi \
     && ${VENV_PATH}/bin/pip install --no-cache-dir \
         --extra-index-url https://pypi.ngc.nvidia.com \
         -r requirements.txt
