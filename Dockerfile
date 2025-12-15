@@ -25,7 +25,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv ${VENV_PATH} \
     && ${VENV_PATH}/bin/pip install --upgrade pip \
-    && ${VENV_PATH}/bin/pip install --no-cache-dir -r requirements.txt
+    && ${VENV_PATH}/bin/pip install --no-cache-dir \
+        --extra-index-url https://pypi.ngc.nvidia.com \
+        -r requirements.txt
 
 COPY runparakeet ./runparakeet
 COPY run.sh README.md ./

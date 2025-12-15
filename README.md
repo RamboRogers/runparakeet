@@ -20,7 +20,7 @@ toolkit available.
 
 - Python 3.9+
 - NVIDIA GPU with CUDA + drivers that satisfy NeMo requirements
-- [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install -r requirements.txt`)
+- [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt`)
 
 ## Installation
 
@@ -31,7 +31,7 @@ pick it up automatically) and install the dependencies:
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 ```
 
 ## Running the service
@@ -85,7 +85,11 @@ docker build \
 > `ngc registry image list nvcr.io/nvidia/l4t-pytorch`. Use one of the listed
 > tags (e.g., `r35.3.1-py3`). The `r35.4.1-py3` tag referenced earlier is no
 > longer published, which causes the “not found” error shown above. Don't forget
-> to authenticate to `nvcr.io` before building: `docker login nvcr.io`.
+> to authenticate to `nvcr.io` before building: `docker login nvcr.io`. When
+> installing requirements on Jetson, pip also needs access to NVIDIA's index
+> (`https://pypi.ngc.nvidia.com`) so it can download the `triton` wheel required
+> by `nemo_toolkit`. The Dockerfile (and the command above) already pass the
+> `--extra-index-url` flag for you.
 
 Run the container with the NVIDIA Container Runtime so the Parakeet model can
 access the GPU:
