@@ -20,7 +20,7 @@ toolkit available.
 
 - Python 3.9+
 - NVIDIA GPU with CUDA + drivers that satisfy NeMo requirements
-- Build tooling: `build-essential`, `python3-dev`, `cmake`, `ninja-build`, `ffmpeg`, `sox`, `libsndfile1`, `cython3`, `python3-wheel`
+- Build tooling: `build-essential`, `python3-dev`, `cmake`, `ninja-build`, `ffmpeg`, `sox`, `libsndfile1`, `python3-wheel`
 - [NeMo Toolkit](https://github.com/NVIDIA/NeMo) (`pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt`)
 
 ## Installation
@@ -41,7 +41,7 @@ pip install --extra-index-url https://pypi.ngc.nvidia.com -r requirements.txt
 > the official Triton compiler wheel is unavailable. Skip that step on x86_64
 > hosts so you can use the real Triton implementation provided by PyTorch.
 > Jetson images also need standard build tooling preinstalled:
-> `sudo apt-get install build-essential python3-dev cmake ninja-build ffmpeg sox libsndfile1 cython3 python3-wheel`.
+> `sudo apt-get install build-essential python3-dev cmake ninja-build ffmpeg sox libsndfile1 python3-wheel`.
 
 ## Running the service
 
